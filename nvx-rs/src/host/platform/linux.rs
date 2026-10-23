@@ -53,8 +53,8 @@ pub fn process_start_time(pid: u32) -> io::Result<Option<u64>> {
 
 /// Reads `/proc/<pid>/stat`, or returns `None` if no process has the ID.
 fn read_stat(pid: u32) -> io::Result<Option<String>> {
-    match fs::read_to_string(format!("/proc/{pid}/stat")) {
-        Ok(stat) => Ok(Some(stat)),
+    match fs::read(format!("/proc/{pid}/stat")) {
+        Ok(stat) => Ok(Some(String::from_utf8_lossy(&stat).into_owned())),
         Err(error)
             if error.kind() == io::ErrorKind::NotFound
                 || error.raw_os_error() == Some(Errno::ESRCH as i32) =>
