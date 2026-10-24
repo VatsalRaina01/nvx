@@ -274,6 +274,7 @@ impl Peer {
             return Err(Violation::Ended);
         }
         incoming.ended = true;
+        incoming.truncated = true;
         Ok(Receipt::Applied)
     }
 
@@ -641,8 +642,8 @@ impl Peer {
 
     /// Returns the outcome once the peer can finish: the runner's terminal outcome, with the
     /// streams that the peer truncated, once the sink took or the peer discarded the rest of the
-    /// output; or, once the peer detached or gave up, an outcome of its own, with no status, its
-    /// cause, each stream truncated that did not end whole, and fenced.
+    /// output; or, once the peer detached or gave up, an outcome of its own, with no status,
+    /// its cause, each stream truncated, and fenced.
     fn outcome(&self) -> Option<Outcome> {
         if !self
             .outputs
@@ -656,9 +657,7 @@ impl Peer {
             None if self.detached || self.gave_up => {
                 let mut outcome = Outcome::new(None);
                 for stream in Stream::ALL {
-                    if !self.outputs[stream.index()].ended {
-                        outcome = outcome.with_truncated(stream);
-                    }
+                    outcome = outcome.with_truncated(stream);
                 }
                 outcome
             }
