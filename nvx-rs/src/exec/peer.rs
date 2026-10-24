@@ -656,9 +656,7 @@ impl Peer {
             None if self.detached || self.gave_up => {
                 let mut outcome = Outcome::new(None);
                 for stream in Stream::ALL {
-                    if !self.outputs[stream.index()].ended {
-                        outcome = outcome.with_truncated(stream);
-                    }
+                    outcome = outcome.with_truncated(stream);
                 }
                 outcome
             }
